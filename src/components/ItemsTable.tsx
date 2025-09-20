@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus } from "lucide-react";
 import { InventoryItem } from "./InventoryDashboard";
 
 interface ItemsTableProps {
   items: InventoryItem[];
   onRecordSale: (item: InventoryItem) => void;
+  onAddStock: (item: InventoryItem) => void;
 }
 
-export const ItemsTable = ({ items, onRecordSale }: ItemsTableProps) => {
+export const ItemsTable = ({ items, onRecordSale, onAddStock }: ItemsTableProps) => {
   const getStockStatus = (stock: number) => {
     if (stock === 0) return { label: "Out of Stock", variant: "destructive" as const };
     if (stock < 10) return { label: "Low Stock", variant: "warning" as const };
@@ -24,7 +25,8 @@ export const ItemsTable = ({ items, onRecordSale }: ItemsTableProps) => {
     const totalCost = item.buyPrice * (item.stock + item.sold);
     const currentRevenue = item.sellPrice * item.sold;
     const remaining = totalCost - currentRevenue;
-    return Math.max(0, Math.ceil(remaining / (item.sellPrice - item.buyPrice)));
+    const unitsNeeded = remaining / (item.sellPrice - item.buyPrice);
+    return Math.max(0, unitsNeeded);
   };
 
   return (
@@ -59,20 +61,29 @@ export const ItemsTable = ({ items, onRecordSale }: ItemsTableProps) => {
                 ${profit.toFixed(2)}
               </TableCell>
               <TableCell className="text-warning">
-                {breakEven === 0 ? "✓ Break Even" : `${breakEven} more`}
+                {breakEven === 0 ? "✓ Break Even" : `${breakEven.toFixed(1)} more`}
               </TableCell>
               <TableCell>
                 <Badge variant={stockStatus.variant}>{stockStatus.label}</Badge>
               </TableCell>
               <TableCell>
-                <Button
-                  size="sm"
-                  onClick={() => onRecordSale(item)}
-                  disabled={item.stock === 0}
-                >
-                  <ShoppingCart className="mr-1 h-3 w-3" />
-                  Sell
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onAddStock(item)}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => onRecordSale(item)}
+                    disabled={item.stock === 0}
+                  >
+                    <ShoppingCart className="mr-1 h-3 w-3" />
+                    Sell
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           );

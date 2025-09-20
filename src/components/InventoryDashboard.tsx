@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Package, TrendingUp, DollarSign } from "lucide-react";
 import { AddItemDialog } from "./AddItemDialog";
 import { SalesDialog } from "./SalesDialog";
+import { StockDialog } from "./StockDialog";
 import { ItemsTable } from "./ItemsTable";
+import { ThemeToggle } from "./theme-toggle";
 
 export interface InventoryItem {
   id: string;
@@ -20,6 +22,7 @@ const InventoryDashboard = () => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showSales, setShowSales] = useState(false);
+  const [showStock, setShowStock] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   const addItem = (item: Omit<InventoryItem, "id" | "sold">) => {
@@ -41,6 +44,16 @@ const InventoryDashboard = () => {
     );
   };
 
+  const updateStock = (itemId: string, quantity: number) => {
+    setItems(prev => 
+      prev.map(item => 
+        item.id === itemId 
+          ? { ...item, stock: item.stock + quantity }
+          : item
+      )
+    );
+  };
+
   const totalValue = items.reduce((sum, item) => sum + (item.sellPrice * item.stock), 0);
   const totalInvestment = items.reduce((sum, item) => sum + (item.buyPrice * (item.stock + item.sold)), 0);
   const totalRevenue = items.reduce((sum, item) => sum + (item.sellPrice * item.sold), 0);
@@ -55,10 +68,13 @@ const InventoryDashboard = () => {
             <h1 className="text-3xl font-bold text-foreground">Inventory Manager</h1>
             <p className="text-muted-foreground">Track your business inventory and sales</p>
           </div>
-          <Button onClick={() => setShowAddItem(true)} size="lg">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Item
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={() => setShowAddItem(true)} size="lg">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Item
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -121,6 +137,10 @@ const InventoryDashboard = () => {
                   setSelectedItem(item);
                   setShowSales(true);
                 }}
+                onAddStock={(item) => {
+                  setSelectedItem(item);
+                  setShowStock(true);
+                }}
               />
             )}
           </CardContent>
@@ -138,6 +158,13 @@ const InventoryDashboard = () => {
         onOpenChange={setShowSales}
         item={selectedItem}
         onRecordSale={recordSale}
+      />
+
+      <StockDialog
+        open={showStock}
+        onOpenChange={setShowStock}
+        item={selectedItem}
+        onUpdateStock={updateStock}
       />
     </div>
   );
