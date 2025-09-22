@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { InventoryItem } from "./InventoryDashboard";
+import { InventoryItem } from "@/types/inventory";
 
 interface StockDialogProps {
   open: boolean;
